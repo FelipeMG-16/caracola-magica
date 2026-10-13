@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Caracola Mágica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Varela+Round&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Varela Round', sans-serif;
+            background: linear-gradient(to bottom, #00a8ff 0%, #005f99 100%);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1, h2, .cartoon-text {
+            font-family: 'Chewy', cursive;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .animate-float {
+            animation: float 3.5s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-2deg); }
+            20% { transform: translate(-3px, 0px) rotate(2deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(2deg); }
+            50% { transform: translate(-1px, 2px) rotate(-2deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-2deg); }
+            80% { transform: translate(-1px, -1px) rotate(2deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-2deg); }
+        }
+        .animate-shake {
+            animation: shake 0.4s;
+            animation-iteration-count: infinite;
+        }
+
+        .magic-response {
+            transform: scale(0.3) translateY(20px);
+            opacity: 0;
+            filter: blur(10px);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .magic-response.show {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            filter: blur(0);
+        }
+
+        /* Estilos de la burbuja mágica */
+        .response-bubble {
+            background: linear-gradient(135deg, #fff9c4, #ffeb3b);
+            border: 4px solid #ff9800;
+            border-radius: 2rem;
+            box-shadow: 
+                0 10px 25px rgba(0,0,0,0.4), 
+                0 0 30px rgba(255, 235, 59, 0.6),
+                inset 0 -5px 15px rgba(255, 152, 0, 0.3);
+            position: relative;
+        }
+        /* Flecha de la burbuja */
+        .response-bubble::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 15px 15px 15px;
+            border-style: solid;
+            border-color: transparent transparent #ff9800 transparent;
+        }
+        .response-bubble::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 12px 12px 12px;
+            border-style: solid;
+            border-color: transparent transparent #fff9c4 transparent;
+        }
+
+        /* Texto brillante dentro de la burbuja */
+        .glowing-text {
+            color: #d32f2f;
+            text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff;
+            letter-spacing: 1px;
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            bottom: -50px;
+            animation: rise 10s infinite ease-in;
+            z-index: -1;
+        }
+        @keyframes rise {
+            0% { bottom: -50px; transform: translateX(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { bottom: 110vh; transform: translateX(-100px); opacity: 0; }
+        }
+
+        .toy-string-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .toy-string {
+            width: 4px;
+            height: 40px;
+            background: #f3f4f6;
+            border-left: 2px solid #9ca3af;
+            border-right: 1px solid #d1d5db;
+            box-shadow: 2px 0px 4px rgba(0,0,0,0.3);
+            transition: height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .toy-ring {
+            width: 50px;
+            height: 50px;
+            border: 8px solid #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4), inset 0 3px 6px rgba(0,0,0,0.2);
+            position: relative;
+            top: -2px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(2px);
+            transition: transform 0.2s;
+        }
+        .toy-string-container:hover .toy-ring {
+            transform: scale(1.05);
+        }
+        .toy-ring::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: #b91c1c;
+            border-radius: 2px;
+        }
+        
+        .toy-string-container:active .toy-string,
+        .pulling .toy-string {
+            height: 100px;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        /* Fondo radial para que la imagen JPG (fondo blanco) se mezcle bien */
+        .image-backdrop {
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+        }
+        .blend-image {
+            /* Esto hace que el fondo blanco del JPG sea transparente y se fusione */
+            mix-blend-mode: multiply;
+            filter: contrast(1.1) saturate(1.2);
+        }
+    </style>
+</head>
+<body class="relative text-white p-4">
+
+    <!-- Contenedor de burbujas animadas -->
+    <div id="bubbles-container" class="fixed inset-0 pointer-events-none overflow-hidden -z-10"></div>
+
+    <div class="glass-panel rounded-[2.5rem] p-6 md:p-10 w-full max-w-lg text-center relative z-10 mx-auto mt-4 md:mt-8">
+        
+        <h1 class="text-5xl md:text-6xl mb-2 text-yellow-300 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)] tracking-wide cartoon-text">
+            La Caracola Mágica
+        </h1>
+        <p class="text-blue-100 mb-6 md:mb-8 text-lg font-medium drop-shadow-md">Oh, Caracola Mágica... hazle una pregunta.</p>
+
+        <div class="relative image-backdrop mx-auto w-64 h-64 md:w-80 md:h-80 mb-6 flex justify-center items-center">
+            <img 
+                id="shell" 
+                src="watermarked_img_806198735650738903.jpg" 
+                alt="Caracola Mágica" 
+                class="blend-image w-full h-full object-contain animate-float select-none drop-shadow-xl"
+            >
+        </div>
+
+        <div class="mb-8 relative">
+            <input 
+                type="text" 
+                id="questionInput" 
+                placeholder="Ej. ¿Debería comer una cangreburger?" 
+                class="w-full px-5 py-4 rounded-2xl border-4 border-yellow-400 bg-white/95 text-blue-900 text-xl md:text-2xl placeholder-blue-300 focus:outline-none focus:border-yellow-300 focus:ring-4 focus:ring-yellow-400/50 transition-all shadow-[inset_0_3px_6px_rgba(0,0,0,0.1)] font-['Varela_Round']"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="toy-string-container select-none" id="pullContainer" onclick="askConch()">
+            <div class="text-sm text-yellow-200 mb-1 font-bold tracking-wider uppercase drop-shadow-md">Tira de aquí</div>
+            <div class="toy-string z-0"></div>
+            <div class="toy-ring z-10 flex items-center justify-center"></div>
+        </div>
+
+        <div class="min-h-[120px] flex items-center justify-center mt-4">
+            <div id="responseContainer" class="magic-response absolute">
+                <div class="response-bubble px-8 py-4">
+                    <h2 id="responseText" class="cartoon-text text-4xl md:text-5xl glowing-text text-center leading-none">
+                        <!-- La respuesta aparecerá aquí -->
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Respuestas clásicas solicitadas
+        const responses = [
+            "Nada.",
+            "Ni lo sueñes.",
+            "No.",
+            "Sí.",
+            "Prueba preguntando de nuevo.",
+            "Tal vez algún día.",
+            "No creo.",
+            "No podría saberse."
+        ];
+
+        let isAsking = false;
+
+        // Generar burbujas de fondo
+        function createBubbles() {
+            const container = document.getElementById('bubbles-container');
+            for(let i = 0; i < 20; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                const size = Math.random() * 40 + 10;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${Math.random() * 100}vw`;
+                bubble.style.animationDuration = `${Math.random() * 6 + 6}s`;
+                bubble.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(bubble);
+            }
+        }
+
+        // Función principal
+        function askConch() {
+            const input = document.getElementById('questionInput');
+            const responseContainer = document.getElementById('responseContainer');
+            const responseText = document.getElementById('responseText');
+            const shell = document.getElementById('shell');
+            
+            // Evitar clics múltiples
+            if (isAsking) return;
+
+            // Validar que haya pregunta
+            if (input.value.trim() === '') {
+                input.classList.add('animate-shake');
+                input.style.borderColor = '#ef4444'; // Rojo por error
+                setTimeout(() => {
+                    input.classList.remove('animate-shake');
+                    input.style.borderColor = '#facc15'; // Regresar a amarillo
+                }, 400);
+                input.focus();
+                return;
+            }
+
+            isAsking = true;
+            
+            // Ocultar respuesta anterior si existe
+            responseContainer.classList.remove('show');
+            
+            // Cambiar animación de la caracola a "pensando" (vibrando)
+            shell.classList.remove('animate-float');
+            shell.classList.add('animate-shake');
+
+            // Simular el tiempo que tarda la cuerda en regresar y "pensar"
+            setTimeout(() => {
+                // Detener vibración, volver a flotar
+                shell.classList.remove('animate-shake');
+                shell.classList.add('animate-float');
+
+                // Elegir respuesta aleatoria
+                const randomAnswer = responses[Math.floor(Math.random() * responses.length)];
+                
+                // Asignar texto y mostrar con animación de burbuja
+                responseText.innerText = randomAnswer;
+                responseContainer.classList.add('show');
+                
+                isAsking = false;
+            }, 1200); // 1.2 segundos de suspenso
+        }
+
+        // Permitir usar la tecla Enter
+        document.getElementById('questionInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                // Simular el jalón de la cuerda visualmente
+                const container = document.getElementById('pullContainer');
+                container.classList.add('pulling');
+                
+                askConch();
+                
+                setTimeout(() => {
+                    container.classList.remove('pulling');
+                }, 300);
+                
+                // Quitar el foco del input en móviles para esconder el teclado
+                this.blur();
+            }
+        });
+
+        // Inicializar burbujas al cargar
+        window.onload = function() {
+            createBubbles();
+        };
+    </script>
+</body>
+</html>
